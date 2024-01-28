@@ -1,5 +1,4 @@
 import './App.css';
-import logo from './logo.svg';
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { smartSwapFactoryAddress, smartSwapFactoryAbi, smartSwapPoolAbi, iERC20TokenAbi } from './constants/constants';
@@ -173,7 +172,6 @@ function App() {
       poolsData.push(smartSwapPoolData);
     }
     
-    console.log(poolsData[0]);
     setSmartSwapPoolsData(poolsData);
   }
 
@@ -197,11 +195,6 @@ function App() {
     }
 
     setAvailableTokens(tokens);
-  }
-
-  const printData = async () => {
-    console.log(smartSwapPoolsData);
-    console.log(availableTokens);
   }
 
   const setDepositAmountsByToken0 = async (token0Amount) => {
@@ -309,7 +302,6 @@ function App() {
     }
   }
 
-  /* Kinda aux */
   const HasEnoughAllowance = async () => {
     let token0Contract = new ethers.Contract(selectedLP.token0.address, iERC20TokenAbi, signer);
     let token1Contract = new ethers.Contract(selectedLP.token1.address, iERC20TokenAbi, signer);
@@ -327,11 +319,10 @@ function App() {
       await token1Contract.approve(selectedLP.address, toWei(token1DepositAmount));
     }
     catch(e) {
-      throw e; // TODO: Maybe throw w customized error
+      throw e;
     }
     toast.success('Tokens approved');
   }
-  /* End kinda aux */
 
   const createNewPair = async () => {
     if(newPairToken0Address.length < 42 || newPairToken1Address.length < 42 || 
@@ -432,20 +423,20 @@ function App() {
   }
 
   return (
-    <div className="App">
+    <div className="App min-h-screen">
       <ToastContainer position="bottom-center" limit={1} />
       <header className="App-header">
-        <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-          <a href="/" className="flex">
-            <img src={logo} className="h-10" alt="Logo" />
+        <div className="max-w-screen-lg flex flex-wrap items-center justify-between mx-auto p-4">
+          <a className="flex cursor-pointer custom-color text-2xl font-bold">
+            SmartSwap
           </a>
-          <div className="menu flex items-center">
-            <div className={tab == Tab.Swap ? "menu-item cursor-pointer font-bold px-6" : "menu-item cursor-pointer px-6"} 
+          <div className="menu flex items-center text-white font-bold text-xl">
+            <div className={tab == Tab.Swap ? "menu-item cursor-pointer mx-6 px-1 pb-1 border-b-4" : "menu-item cursor-pointer mx-6 px-1 pb-1 border-b-2"} 
               onClick={() => setTab(Tab.Swap)}
             >
               Swap
             </div>
-            <div className={tab == Tab.Liquidity ? "menu-item cursor-pointer font-bold px-6" : "menu-item cursor-pointer px-6"} 
+            <div className={tab == Tab.Liquidity ? "menu-item cursor-pointer mx-6 px-1 pb-1 border-b-4" : "menu-item cursor-pointer mx-6 px-1 pb-1 border-b-2"} 
               onClick={() => setTab(Tab.Liquidity)}
             >
               Liquidity
@@ -454,13 +445,13 @@ function App() {
           { 
             isConnected ? 
             (
-              <button className="flex bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              <button className="flex custom-background text-white font-bold py-2 px-4 rounded">
                 { accountAddress.slice(0, 6) + '...' + accountAddress.slice(-4) }
               </button>
             )
             :
             (
-              <button className="flex bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" 
+              <button className="uppercase flex custom-background custom-background-hover text-white font-bold py-2 px-4 rounded" 
                 onClick={ () => connectWallet() }
               >
                 Connect
@@ -469,201 +460,233 @@ function App() {
           }
         </div>
       </header>
-      <button className="w-full p-8 hidden" onClick={ () => printData() }>Get pools</button>
-      { 
-        tab == Tab.Swap ?
-        (
-          <div className="container max-w-screen-xl mx-auto pt-20">
-            <div className="max-w-sm rounded overflow-hidden shadow-lg mx-auto">
-              <div className="px-6 py-4">
+      <div className="container max-w-screen-lg mx-auto pt-20">
+        { 
+          tab == Tab.Swap ?
+          (
+            <div className="max-w-lg rounded-xl overflow-hidden shadow-lg mx-auto custom-background2 border-2 custom-border2">
+              <div className="px-20 py-10">
                 <div className="swap-input-container my-4">
-                  <div className="">
-                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded-full" onClick={ () => { setAction(Action.SelectOriginToken); setShowModal(true); } }>
-                      { originToken ? originToken.symbol : "ETH" }
+                  <div className="mb-1">
+                    <button 
+                      className="custom-background custom-background-hover text-white font-bold py-1 px-4 rounded-xl disabled:opacity-50" 
+                      onClick={ () => { setAction(Action.SelectOriginToken); setShowModal(true); } }
+                      disabled={!isConnected}
+                    >
+                      { originToken ? originToken.symbol : "Select token" }
                     </button>
-                    { originToken && (<span>{ formatBalance(originBalance) }</span>) }
+                    { originToken && (<span className="text-white">{ formatBalance(originBalance) }</span>) }
                   </div>
                   <input 
                     type="text" 
                     value={originAmount} 
                     onChange={ (e) => setAmountsByOriginAmount(e.target.value) } 
-                    className="border-2 border-gray-200 rounded w-full py-4 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500">
+                    className="rounded w-full p-3 focus:outline-none font-bold text-gray-500 border-2 custom-border">
                   </input>
                 </div>
                 <div className="swap-output-container my-4">
-                  <div className="">
-                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded-full" onClick={ () => { setAction(Action.SelectDestinationToken); setShowModal(true); } }>
+                  <div className="mb-1">
+                    <button 
+                      className="custom-background custom-background-hover text-white font-bold py-1 px-4 rounded-xl disabled:opacity-50" 
+                      onClick={ () => { setAction(Action.SelectDestinationToken); setShowModal(true); } }
+                      disabled={!isConnected}
+                    >
                       { destinationToken ? destinationToken.symbol : "Select token" }
                     </button>
-                    { destinationToken && (<span>{ formatBalance(destinationBalance) }</span>) }
+                    { destinationToken && (<span className="text-white">{ formatBalance(destinationBalance) }</span>) }
                   </div>
                   <input 
                     type="text" 
                     value={destinationAmount} 
                     onChange={ (e) => setAmountsByDestinationAmount(e.target.value) } 
-                    className="border-2 border-gray-200 rounded w-full py-4 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500">
+                    className="rounded w-full p-3 focus:outline-none font-bold text-gray-500 border-2 custom-border">
                   </input>
                 </div>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" onClick={ () => swap() }>
-                  Swap
+                <button className="custom-background custom-background-hover text-white font-bold py-2 px-4 rounded-xl disabled:opacity-50" 
+                  onClick={ () => swap() }
+                  disabled={!isConnected}
+                >
+                  { isConnected ? "Swap" : "Connect your metamask" }
                 </button>
               </div>
             </div>
-          </div>
-        )
-        :
-        (
-          <div className="container max-w-screen-xl mx-auto pt-20">
-            <div className="w-full my-2">
-              <button 
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" 
-                onClick={ () => { setAction(Action.CreatePair); setShowModal(true); } }
-              >
-                Create new pair
-              </button>
+          )
+          :
+          (
+            <div>
+              {
+                isConnected ?
+                <div className="w-full my-2">
+                  <button 
+                    className="custom-background custom-background-hover text-white font-bold py-2 px-4 rounded-xl" 
+                    onClick={ () => { setAction(Action.CreatePair); setShowModal(true); } }
+                  >
+                    Create new pair
+                  </button>
+                </div>
+                :
+                null
+              }
+              <div className="table-container border-solid border-2 rounded-xl custom-border2 custom-background2 shadow text-white ">
+                <table className="table-auto w-full">
+                  <thead>
+                    <tr>
+                      <th className='text-left border-b-2 custom-border2 p-4'>Token pair</th>
+                      <th className='text-left border-b-2 custom-border2 p-4'>My liquidity</th>
+                      <th className='text-left border-b-2 custom-border2 p-4'>Total liquidity</th>
+                      <th className='text-left border-b-2 custom-border2 p-4'>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      !isConnected ?
+                        <tr><td className="p-4 text-center font-bold" colSpan="4">Connect your metamask</td></tr>
+                      : 
+                      smartSwapPoolsData.length > 0 ?
+                        smartSwapPoolsData.map((pool) => (
+                          <tr key={pool.address}>
+                            <td className="border-b custom-border2 p-4">{`${pool.token0.symbol} <=> ${pool.token1.symbol}`}</td>
+                            <td className="border-b custom-border2 p-4">{formatBalance(pool.myLiquidity)}</td>
+                            <td className="border-b custom-border2 p-4">{formatBalance(pool.totalLiquidity)}</td>
+                            {
+                              pool.totalLiquidity > 0 ? (
+                                <td className="border-b custom-border2 p-4">
+                                  <button 
+                                    className="custom-background custom-background-hover text-white font-bold py-2 px-4 rounded-xl mx-1" 
+                                    onClick={ () => { setSelectedLP(pool); setAction(Action.AddLiquidity); setShowModal(true); }}
+                                  >
+                                    Add liquidity
+                                  </button>
+                                  <button 
+                                    className="custom-background custom-background-hover text-white font-bold py-2 px-4 rounded-xl mx-1" 
+                                    onClick={ () => { setSelectedLP(pool); setAction(Action.RemoveLiquidity); setShowModal(true); }}
+                                  >
+                                    Remove liquidity
+                                  </button>
+                                </td>
+                              ) :
+                              (
+                                <td className="border-b custom-border2 p-4">
+                                  <button 
+                                    className="custom-background custom-background-hover text-white font-bold py-2 px-4 rounded-xl" 
+                                    onClick={ () => { setSelectedLP(pool); setAction(Action.InitLP); setShowModal(true); }}
+                                  >
+                                    Init LP
+                                  </button>
+                                </td>
+                              )
+                            }
+                          </tr>
+                        ))
+                      : <tr><td className="p-4 text-center font-bold" colSpan="4">No liquidity pairs</td></tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <div className="table-container border-solid border-2 rounded-xl">
-              <table className="table-auto w-full">
-                <thead>
-                  <tr>
-                    <th className='text-left border-b p-4'>Token pair</th>
-                    <th className='text-left border-b p-4'>My liquidity</th>
-                    <th className='text-left border-b p-4'>Total liquidity</th>
-                    <th className='text-left border-b p-4'>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    smartSwapPoolsData.map((pool) => (
-                      <tr key={pool.address}>
-                        <td className="border-b p-4">{`${pool.token0.symbol} <=> ${pool.token1.symbol}`}</td>
-                        <td className="border-b p-4">{formatBalance(pool.myLiquidity)}</td>
-                        <td className="border-b p-4">{formatBalance(pool.totalLiquidity)}</td>
-                        {
-                          pool.totalLiquidity > 0 ? (
-                            <td className="border-b p-4">
-                              <button 
-                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" 
-                                onClick={ () => { setSelectedLP(pool); setAction(Action.AddLiquidity); setShowModal(true); }}
-                              >
-                                Add liquidity
-                              </button>
-                              <button 
-                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" 
-                                onClick={ () => { setSelectedLP(pool); setAction(Action.RemoveLiquidity); setShowModal(true); }}
-                              >
-                                Remove liquidity
-                              </button>
-                            </td>
-                          ) :
-                          (
-                            <td className="border-b p-4">
-                              <button 
-                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" 
-                                onClick={ () => { setSelectedLP(pool); setAction(Action.InitLP); setShowModal(true); }}
-                              >
-                                Init LP
-                              </button>
-                            </td>
-                          )
-                        }
-                      </tr>
-                    ))
-                  }
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )
-      }
+          )
+        }
+      </div>
       { /* Modal */ }
       { showModal &&
         (
           <div className="modal">
             <div className="flex justify-center items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
               <div className="modal-overlay z-10" onClick={ () => { setShowModal(false); setAction(Action.None); }}></div>
-              <div className="modal-content p-10 bg-gray-200 z-20">
+              <div className="modal-content p-10 max-w-lg w-full shadow-lg custom-background2 z-20 border-2 custom-border2 rounded-xl">
                 { 
                   action == Action.CreatePair ?
                     <div className="create-pair-container">
+                      <label className="text-white font-bold">Token address 1</label>
                       <input 
                         type="text" 
                         value={newPairToken0Address} 
                         onChange={ (e) => setNewPairToken0Address(e.target.value) } 
-                        className="border-2 border-gray-200 rounded w-full py-4 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500">
+                        className="rounded w-full p-3 focus:outline-none font-bold text-gray-500 border-2 custom-border mb-2">
                       </input>
+                      <label className="text-white font-bold">Token address 2</label>
                       <input 
                         type="text" 
                         value={newPairToken1Address} 
                         onChange={ (e) => setNewPairToken1Address(e.target.value) } 
-                        className="border-2 border-gray-200 rounded w-full py-4 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500">
+                        className="rounded w-full p-3 focus:outline-none font-bold text-gray-500 border-2 custom-border mb-2">
                       </input>
                       <button 
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" 
+                        className="custom-background custom-background-hover text-white font-bold py-2 px-4 rounded-xl mt-2" 
                         onClick={ () => createNewPair() }
                       >
                         Create new pair
                       </button>
                     </div>
                   : action == Action.SelectDestinationToken ?
-                    availableTokens.map((token) => (
-                      <div 
-                        key={token.address} 
-                        onClick={() => { setDestinationToken(token); setShowModal(false); }}
-                        className="max-w-sm cursor-pointer"
-                      >
-                        {token.name} ({token.symbol})
-                      </div>
-                    ))
+                    (<div>
+                      <h5 className="text-white font-bold ml-4 mb-4">Select token</h5>
+                      {
+                        availableTokens.map((token) => (
+                          <div 
+                            key={token.address} 
+                            onClick={() => { setDestinationToken(token); setShowModal(false); }}
+                            className="max-w-sm cursor-pointer text-white py-1 px-4 m-4 inline custom-background custom-background-hover rounded-xl"
+                          >
+                            {token.symbol}
+                          </div>
+                        ))
+                      }
+                    </div>)
                   : action == Action.SelectOriginToken ?
-                    availableTokens.map((token) => (
-                      <div 
-                        key={token.address} 
-                        onClick={() => { setOriginToken(token); setShowModal(false);}}
-                        className="max-w-sm cursor-pointer"
-                      >
-                        {token.name} ({token.symbol})
-                      </div>
-                    ))
+                    (<div>
+                      <h5 className="text-white font-bold ml-4 mb-4">Select token</h5>
+                      {
+                        availableTokens.map((token) => (
+                          <div 
+                            key={token.address} 
+                            onClick={() => { setOriginToken(token); setShowModal(false);}}
+                            className="max-w-sm cursor-pointer text-white py-1 px-4 m-4 inline custom-background custom-background-hover rounded-xl"
+                          >
+                            {token.symbol}
+                          </div>
+                        ))
+                      }
+                    </div>)
                   : action == Action.InitLP ?
                     <div className="init-liquidity-container">
                       <div className="liquidity-token0-container">
                         <div className="">
-                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded-full">
+                          <button className="custom-background text-white font-bold py-1 px-4 my-1 rounded-xl">
                             { selectedLP.token0.symbol }
                           </button>
-                          { <span>{ formatBalance(token0DepositBalance) }</span> }
+                          { <span className="ml-2 text-white">{ formatBalance(token0DepositBalance) }</span> }
                         </div>
                         <input 
                           type="text" 
                           value={token0DepositAmount} 
                           onChange={ (e) => setToken0DepositAmount(e.target.value) } 
-                          className="border-2 border-gray-200 rounded w-full py-4 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500">
+                          className="rounded w-full p-3 mb-2 focus:outline-none font-bold text-gray-500 border-2 custom-border">
                         </input>
                       </div>
                       <div className="liquidity-token1-container">
                         <div className="">
-                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded-full">
+                          <button className="custom-background text-white font-bold py-1 px-4 my-1 rounded-xl">
                             { selectedLP.token1.symbol }
                           </button>
-                          { <span>{ formatBalance(token1DepositBalance) }</span> }
+                          { <span className="ml-2 text-white">{ formatBalance(token1DepositBalance) }</span> }
                         </div>
                         <input 
                           type="text" 
                           value={token1DepositAmount} 
                           onChange={ (e) => setToken1DepositAmount(e.target.value) } 
-                          className="border-2 border-gray-200 rounded w-full py-4 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500">
+                          className="rounded w-full p-3 mb-2 focus:outline-none font-bold text-gray-500 border-2 custom-border">
                         </input>
                       </div>
                       <div className="liquidity-buttons-container">
                         <button 
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" 
+                          className="custom-background custom-background-hover text-white font-bold py-2 px-4 rounded-xl mx-2 mt-2" 
                           onClick={ () => initLP() }
                         >
                           Init liquidity pool
                         </button>
                         <button 
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" 
+                          className="custom-background custom-background-hover text-white font-bold py-2 px-4 rounded-xl mx-2 mt-2" 
                           onClick={ () => ApproveTokens() }
                         >
                           Approve tokens
@@ -674,41 +697,41 @@ function App() {
                     <div className="add-liquidity-container">
                       <div className="liquidity-token0-container">
                         <div className="">
-                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded-full">
+                          <button className="custom-background text-white font-bold py-1 px-4 my-1 rounded-xl">
                             { selectedLP.token0.symbol }
                           </button>
-                          { <span>{ formatBalance(token0DepositBalance) }</span> }
+                          { <span className="ml-2 text-white">{ formatBalance(token0DepositBalance) }</span> }
                         </div>
                         <input 
                           type="text" 
                           value={token0DepositAmount} 
                           onChange={ (e) => setDepositAmountsByToken0(e.target.value) } 
-                          className="border-2 border-gray-200 rounded w-full py-4 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500">
+                          className="rounded w-full p-3 mb-2 focus:outline-none font-bold text-gray-500 border-2 custom-border">
                         </input>
                       </div>
                       <div className="liquidity-token1-container">
                         <div className="">
-                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded-full">
+                          <button className="custom-background text-white font-bold py-1 px-4 my-1 rounded-xl">
                             { selectedLP.token1.symbol }
                           </button>
-                          { <span>{ formatBalance(token1DepositBalance) }</span> }
+                          { <span className="ml-2 text-white">{ formatBalance(token1DepositBalance) }</span> }
                         </div>
                         <input 
                           type="text" 
                           value={token1DepositAmount} 
                           onChange={ (e) => setDepositAmountsByToken1(e.target.value) } 
-                          className="border-2 border-gray-200 rounded w-full py-4 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500">
+                          className="rounded w-full p-3 mb-2 focus:outline-none font-bold text-gray-500 border-2 custom-border">
                         </input>
                       </div>
                       <div className="liquidity-buttons-container">
                         <button 
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" 
+                          className="custom-background custom-background-hover text-white font-bold py-2 px-4 m-1 rounded-xl" 
                           onClick={ () => addLiquidity() }
                         >
                           Add liquidity
                         </button>
                         <button 
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" 
+                          className="custom-background custom-background-hover text-white font-bold py-2 px-4 m-1 rounded-xl" 
                           onClick={ () => ApproveTokens() }
                         >
                           Approve tokens
@@ -719,21 +742,21 @@ function App() {
                     <div className="remove-liquidity-container">
                       <div className="liquidity-lptoken-container">
                         <div className="">
-                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded-full">
+                          <button className="custom-background text-white font-bold py-1 px-4 my-1 rounded-xl">
                             LP tokens
                           </button>
-                          { <span>{ formatBalance(selectedLP.myLiquidity) }</span> }
+                          { <span className="ml-2 text-white">{ formatBalance(selectedLP.myLiquidity) }</span> }
                         </div>
                         <input 
                           type="text" 
                           value={withdrawAmount} 
                           onChange={ (e) => setAndFormatWithdrawAmount(e.target.value) } 
-                          className="border-2 border-gray-200 rounded w-full py-4 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500">
+                          className="rounded w-full p-3 mb-2 focus:outline-none font-bold text-gray-500 border-2 custom-border">
                         </input>
                       </div>
                       <div className="liquidity-buttons-container">
                         <button 
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" 
+                          className="custom-background custom-background-hover text-white font-bold py-2 px-4 mt-2 rounded-xl" 
                           onClick={ () => removeLiquidity() }
                         >
                           Remove liquidity
@@ -743,9 +766,6 @@ function App() {
                   :
                     <div>No content</div>
                 }
-                <button className="bg-transparent border-0 text-black float-right" onClick={() => { setShowModal(false); setAction(Action.None); }}>
-                  Close
-                </button>
               </div>
             </div>
           </div>

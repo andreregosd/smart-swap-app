@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+#root {
+  background: url("./res/background.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
 .modal-overlay {
   position: fixed;
   top: 0px;
@@ -9,6 +14,32 @@
   width: 100%;
   height: 100%;
   background-color: #000;
-  opacity: 0.3;
+  opacity: 0.6;
   z-index: 20;
+}
+.custom-color {
+  color: #8B008B;
+  text-shadow: 1px 1px #8F00FF;
+}
+.custom-background {
+  background: #8B008B;
+  transition: 0.1s;
+}
+.custom-background-hover:hover {
+  background: #6a006a;
+}
+.custom-background2 {
+  background: #8F00FF;
+}
+.custom-border {
+  border-color: #8F00FF;
+}
+.custom-border:focus {
+  border-color: #8B008B;
+}
+.custom-border2 {
+  border-color: #8B008B;
+}
+.custom-background-hover:disabled {
+  background: #8B008B;
 }
