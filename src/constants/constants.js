@@ -1,4 +1,5 @@
-export const smartSwapFactoryAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+export const smartSwapFactoryAddress = "0x727DFB244CfD31bff00dB9618Bf99D89eF266372";
+export const smartSwapTokenAddress = "0x0b1df17A79C0e64F0Acc63a5D908b0dbCE43cdad";
 
 export const smartSwapFactoryAbi = [
     {
